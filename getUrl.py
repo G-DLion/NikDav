@@ -1,18 +1,20 @@
 import requests
 
+#метод для букв, делает их маленькими
 def lowercase_string(string):
     return string.lower()
 
+#создаём словарь для каждой биржи
 binance_date = {}
 bybit_date = {}
 huobi_data = {}
 bkex_data = {}
 okx_data = {}
 kucoin_data = {}
-attrib = True
+
 
 def get_data(mainExchange, baseActive, balance):
-    list_crypto = ['BTC']
+    list_crypto = ['BTC', 'ETH'] #в этом списке будет храниться вся крипта, но пока только 2
     page_exchange = {
         'Binance': 'https://api.binance.com/api/v3/ticker/price?symbol=', 
         'Bybit': 'https://api.bybit.com/v5/market/tickers?category=inverse&symbol=', 
@@ -20,11 +22,11 @@ def get_data(mainExchange, baseActive, balance):
         'OKX': 'https://aws.okx.com/api/v5/market/index-tickers?instId=',
         'KuCoin': 'http://api.kucoin.com/api/v1/market/orderbook/level1?symbol=', 
         'BKEX': 'https://api.bkex.com/v2/q/tickers?symbol=',
-    }
+    } #ссылки на api запросы
 
     for sym in list_crypto:
         for name_exchange, url in page_exchange.items():
-            if name_exchange == 'Huobi':
+            if name_exchange == 'Huobi': #получение данных с Huobi
                 responses = requests.get(url + lowercase_string(sym + baseActive)).json()
                 huobi_data['name'] = name_exchange
                 huobi_data['price'] = price
@@ -34,7 +36,7 @@ def get_data(mainExchange, baseActive, balance):
                 else:
                     huobi_data['attrib'] = False
                 print(huobi_data)
-            elif name_exchange == 'BKEX': 
+            elif name_exchange == 'BKEX': #получение данных с BKEX
                 responses = requests.get(url + sym + '_' + baseActive).json()
                 if name_exchange == 'BKEX':
                     price = responses['data'][0]['close']
@@ -46,7 +48,7 @@ def get_data(mainExchange, baseActive, balance):
                     else:
                         bkex_data['attrib'] = False
                     print(bkex_data)
-            elif name_exchange == 'OKX' or name_exchange == 'KuCoin':
+            elif name_exchange == 'OKX' or name_exchange == 'KuCoin': #получение данных с Huobi или c KuCoin
                 responses = requests.get(url + sym + '-' + baseActive).json()
                 if name_exchange == 'OKX':
                     price = responses['data'][0]['idxPx']
@@ -68,7 +70,7 @@ def get_data(mainExchange, baseActive, balance):
                     else:
                         kucoin_data['attrib'] = False
                     print(kucoin_data)
-            else:
+            else: #получение данных с Binance или с Bybit
                 responses = requests.get(url + sym + baseActive).json()
                 if name_exchange == 'Binance':
                     price = responses['price']
@@ -93,12 +95,12 @@ def get_data(mainExchange, baseActive, balance):
                     print(bybit_date)
                 
 
-'''def test_get_data():
+'''def test_get_data(): #метод для тестовых запросов
     url = 'https://api.bkex.com/v2/q/tickers?symbol=BTC_USDT'
     req = requests.get(url).json()
     print(req['data'][0]['close'])'''
 
-l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX']
-print('Cписок бирж - ', l)
+l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX'] #список бирж
+print('Cписок бирж - ', l) 
 mainExchange = input("Введи название биржи: ")
-get_data(mainExchange, 'USDT', 100)
+get_data(mainExchange, 'USDT', 100) #1 - главвная биржа, где храняться наши активы. 2 - базовый актив (пока будет USDT) 3 - кол-во монет (добавлю в будущем)
