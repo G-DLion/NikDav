@@ -132,7 +132,7 @@ def test_get_data():
 
 #test_get_data()
 
-l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX', 'Gate', 'BitGet']
-print('Cписок бирж - ', l)
-mainExchange = input("Введи название биржи: ")
-print(get_data(mainExchange, 'USDT', 100))
+#l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX', 'Gate', 'BitGet']
+#print('Cписок бирж - ', l)
+#mainExchange = input("Введи название биржи: ")
+#print(get_data(mainExchange, 'USDT', 100))
