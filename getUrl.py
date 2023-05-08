@@ -9,6 +9,9 @@ huobi_data = {}
 bkex_data = {}
 okx_data = {}
 kucoin_data = {}
+bitget_data = {}
+gate_data = {}
+
 attrib = True
 
 def get_data(mainExchange, baseActive, balance):
@@ -21,8 +24,9 @@ def get_data(mainExchange, baseActive, balance):
         'OKX': 'https://aws.okx.com/api/v5/market/index-tickers?instId=',
         'KuCoin': 'http://api.kucoin.com/api/v1/market/orderbook/level1?symbol=', 
         'BKEX': 'https://api.bkex.com/v2/q/tickers?symbol=',
+        'BitGet': 'https://api.bitget.com/api/spot/v1/market/ticker?symbol=', 
+        'Gate': 'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=', 
     }
-
     for sym in list_crypto:
         for name_exchange, url in page_exchange.items():
             if name_exchange == 'Huobi':
@@ -36,7 +40,7 @@ def get_data(mainExchange, baseActive, balance):
                     huobi_data['attrib'] = False
                 return_list.append(huobi_data)
                 
-            elif name_exchange == 'BKEX': 
+            elif name_exchange == 'BKEX' or name_exchange == 'Gate': 
                 responses = requests.get(url + sym + '_' + baseActive).json()
                 if name_exchange == 'BKEX':
                     price = responses['data'][0]['close']
@@ -48,7 +52,29 @@ def get_data(mainExchange, baseActive, balance):
                     else:
                         bkex_data['attrib'] = False
                     return_list.append(bkex_data)
-                    
+                elif name_exchange == 'Gate':
+                    price = responses[0]['last']
+                    gate_data['name'] = name_exchange
+                    gate_data['price'] = price
+                    gate_data['symbol'] = sym + baseActive
+                    if mainExchange == 'Gate':
+                        gate_data['attrib'] = True
+                    else:
+                        gate_data['attrib'] = False
+                    return_list.append(gate_data)
+
+            elif name_exchange == 'BitGet':
+                responses = requests.get(url + sym + baseActive + '_SPBL').json()
+                price = responses['data']['close']
+                bitget_data['name'] = name_exchange
+                bitget_data['price'] = price
+                bitget_data['symbol'] = sym + baseActive  
+                if mainExchange == 'BitGet':
+                    bitget_data['attrib'] = True
+                else:
+                    bitget_data['attrib'] = False
+                return_list.append(bitget_data)
+                
             elif name_exchange == 'OKX' or name_exchange == 'KuCoin':
                 responses = requests.get(url + sym + '-' + baseActive).json()
                 if name_exchange == 'OKX':
@@ -97,13 +123,16 @@ def get_data(mainExchange, baseActive, balance):
                     return_list.append(bybit_date)
         
         return return_list
+                
 
-'''def test_get_data():
-    url = 'https://api.bkex.com/v2/q/tickers?symbol=BTC_USDT'
+def test_get_data():
+    url = 'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT'
     req = requests.get(url).json()
-    print(req['data'][0]['close'])'''
+    print(req[0]['last'])
 
-l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX']
+#test_get_data()
+
+l = ['Binance', 'Huobi', 'Bybit', 'OKX', 'KuCoin', 'BKEX', 'Gate', 'BitGet']
 print('Cписок бирж - ', l)
 mainExchange = input("Введи название биржи: ")
 print(get_data(mainExchange, 'USDT', 100))
